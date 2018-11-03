@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.goopam.flicks.models.Config;
 import com.goopam.flicks.models.Movie;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -31,38 +32,30 @@ public class MovieListActivity extends AppCompatActivity {
 
     AsyncHttpClient client;
 
-    //Ligne sa reprezante Base Url ki pral la pou Upload Images yo
-    String imageBaseUrl;
-    //Ligne sa reprezante size Images yo
-    String posterSize;
-
     ArrayList<Movie> movies;
     // The recycle View
     RecyclerView rvMovies;
     //Ligne sa pral gen pou l lier RecyclerView an avek Adapter an
     MovieAdapter adapter;
-
+    //Ligne sa reprezante configuration pou Image yo
+    Config config;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
 
-    client = new AsyncHttpClient();
-
-    movies = new ArrayList<>();
-    //Initialize the adapter
+        client = new AsyncHttpClient();
+        movies = new ArrayList<>();
+        //Initialize the adapter
         adapter = new MovieAdapter(movies);
         // Ligne code sa ap gen pou l trete RecyclerView an, e konekte yon Layout manager avek Adapter an
         rvMovies = (RecyclerView) findViewById(R.id.rvMovies);
         rvMovies.setLayoutManager(new LinearLayoutManager(this));
         rvMovies.setAdapter(adapter);
+        getConfiguration();
 
-
-
-    getConfiguration();
-
-    getNowPlaying();
+        getNowPlaying();
     }
 
     private  void getNowPlaying(){
@@ -113,14 +106,15 @@ public class MovieListActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
         //Donk, si requette la bon, ansanm de komand sa yo ap exekite
                 try {
-                    JSONObject images = response.getJSONObject("images");
-                    // Premyeman, Pran Url Image lan
-                    imageBaseUrl = images.getString("secure_base_url");
-                    // Dezyeman, Pran size poster film lan
-                    JSONArray posterSizeOptions = images.getJSONArray("poster_sizes");
+                    config = new Config(response);
 
-                    posterSize = posterSizeOptions.optString(3, "w342");
-                    Log.i(TAG, String.format("Loaded Configuration with imageBaseUrl %s and posterSize %s", imageBaseUrl, posterSize));
+                    Log.i(TAG,
+                            String.format("Loaded Configuration with imageBaseUrl %s and posterSize %s",
+                                    config.getImageBaseUrl(),
+                                    config.getPosterSize()));
+
+                        adapter.setConfig(config);
+                        //Pass config to Adapter
                     getNowPlaying();
                 } catch (JSONException e) {
                     LogError("Failed parsing configuration", e, true);

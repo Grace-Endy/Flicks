@@ -25,8 +25,9 @@
         android:id="@+id/tvOverview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/tvTitle"
+        android:layout_alignLeft="@+id/tvTitle"
         android:layout_below="@+id/tvTitle"
+        android:maxLines="3"
         android:text="Movie Overview and Synopsis" />
 
 </RelativeLayout>
